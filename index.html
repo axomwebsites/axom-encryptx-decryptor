@@ -261,59 +261,42 @@
       <div class="bg-gray-800 brutalist-border p-6 mb-6">
         <div class="flex items-center gap-3 mb-6">
           <span class="text-xs font-bold tracking-wider text-red-600 bg-red-900/20 border-2 border-red-600 px-2 py-0.5 rounded">API</span>
-          <h2 class="text-sm font-semibold tracking-widest text-gray-200 font-title">WEB API & INTEGRATION</h2>
+          <h2 class="text-sm font-semibold tracking-widest text-gray-200 font-title">URL HASH API</h2>
           <div class="flex-1 h-px bg-gradient-to-r from-gray-700 to-transparent"></div>
         </div>
 
         <div class="space-y-8">
           
           <div class="bg-gray-900 rounded p-5 border-2 border-black">
-            <h3 class="text-red-600 font-bold text-lg mb-4 font-title">LIVE API TESTER</h3>
-            <p class="text-gray-400 text-sm mb-4">Test the decryption engine directly in your browser. Input an ID and receive the raw decrypted output.</p>
+            <h3 class="text-red-600 font-bold text-lg mb-2 font-title">HOW IT WORKS</h3>
+            <p class="text-gray-400 text-sm mb-4">This website acts as the API endpoint. Simply append the Script ID to the URL hash.</p>
+            
+            <div class="bg-black p-4 rounded border border-gray-700 font-mono text-sm text-green-400 break-all mb-4">
+              https://your-website.com/#<span class="text-white">SCRIPT_ID</span>
+            </div>
+
+            <div class="text-sm text-gray-300 space-y-2">
+              <p><strong>Example Usage:</strong></p>
+              <ul class="list-disc ml-5 text-xs font-mono text-gray-400">
+                <li>Open: <span class="text-emerald-300">https://axomic.dev/#2723928466610</span></li>
+                <li>The site automatically fetches, decrypts, and displays the script.</li>
+                <li>No external servers or Python code required.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="bg-gray-900 rounded p-5 border-2 border-black">
+            <h3 class="text-red-600 font-bold text-lg mb-4 font-title">LIVE TESTER</h3>
+            <p class="text-gray-400 text-sm mb-4">Simulate the API behavior here.</p>
             
             <div class="flex gap-2 mb-4">
-              <input type="text" id="apiTestId" class="flex-1 bg-black border-2 border-gray-700 rounded px-3 py-2 text-gray-200 font-mono text-sm focus:border-red-600 outline-none" placeholder="Enter Script ID (e.g. 2723928466610)" />
-              <button id="apiTestBtn" class="bg-red-900/20 border-2 border-red-600 text-red-600 px-4 py-2 rounded font-bold hover:bg-red-900/40 transition">TEST</button>
+              <input type="text" id="apiTestId" class="flex-1 bg-black border-2 border-gray-700 rounded px-3 py-2 text-gray-200 font-mono text-sm focus:border-red-600 outline-none" placeholder="Enter Script ID" />
+              <button id="apiTestBtn" class="bg-red-900/20 border-2 border-red-600 text-red-600 px-4 py-2 rounded font-bold hover:bg-red-900/40 transition">RUN API</button>
             </div>
 
             <div id="apiTestOutput" class="hidden">
-              <label class="block text-xs font-semibold tracking-widest text-gray-500 mb-2">OUTPUT RESULT:</label>
+              <label class="block text-xs font-semibold tracking-widest text-gray-500 mb-2">API RESPONSE:</label>
               <pre class="bg-black p-4 rounded border-2 border-gray-700 font-mono text-xs text-green-400 overflow-x-auto max-h-60 whitespace-pre-wrap" id="apiTestResult"></pre>
-            </div>
-          </div>
-
-          <div class="bg-gray-900 rounded p-5 border-2 border-black">
-            <h3 class="text-red-600 font-bold text-lg mb-2 font-title">JAVASCRIPT CONSOLE API</h3>
-            <p class="text-gray-400 text-sm mb-4">Developers can use the global `axomic` object in their browser console or embed it in their own sites.</p>
-            
-            <div class="relative group">
-              <pre class="bg-black p-4 rounded border border-gray-700 font-mono text-xs text-gray-300 overflow-x-auto"><code>// Decrypt a single script
-const result = await window.axomic.decrypt('2723928466610');
-console.log(result); // Returns raw Lua string
-
-// Get current status
-const status = window.axomic.getStatus();
-
-// Clear history
-window.axomic.clearHistory();</code></pre>
-              <button class="absolute top-2 right-2 bg-gray-800 border border-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-700 transition copy-btn">COPY</button>
-            </div>
-          </div>
-
-          <div class="bg-gray-900 rounded p-5 border-2 border-black">
-            <h3 class="text-red-600 font-bold text-lg mb-4 font-title">PYTHON IMPLEMENTATION (EXTERNAL)</h3>
-            <p class="text-gray-400 text-sm mb-4">For external applications, fetch the raw JSON and decrypt locally.</p>
-            <div class="relative group">
-              <pre class="bg-black p-4 rounded border border-gray-700 font-mono text-xs text-gray-300 overflow-x-auto"><code>import requests
-# 1. Fetch Raw Data
-url = "https://raw.githubusercontent.com/ScriptObfuscator2/Scripts/main/YOUR_ID"
-data = requests.get(url).json()
-
-# 2. Decrypt (Logic handled by your local script)
-# Note: This website handles decryption client-side automatically.
-print(data['Key']) 
-print(data['Script'])</code></pre>
-              <button class="absolute top-2 right-2 bg-gray-800 border border-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-700 transition copy-btn">COPY</button>
             </div>
           </div>
 
@@ -878,8 +861,17 @@ print(data['Script'])</code></pre>
         apiTestResult.innerText = 'Error: ' + err.message;
         apiTestResult.classList.add('text-red-500');
       } finally {
-        apiTestBtn.innerText = 'TEST';
+        apiTestBtn.innerText = 'RUN API';
         apiTestBtn.disabled = false;
+      }
+    }
+
+    function handleHashApi() {
+      const hash = window.location.hash.substring(1);
+      if (hash && hash.length > 0) {
+        scriptInput.value = hash;
+        runDecrypt();
+        window.history.replaceState(null, null, ' ');
       }
     }
 
@@ -964,11 +956,7 @@ print(data['Script'])</code></pre>
         mainTab.classList.remove('border-transparent');
       }
       
-      window.axomic = {
-        decrypt: runDecrypt,
-        getStatus: () => ({ status: statusText.textContent, currentId }),
-        clearHistory: clearAllHistory
-      };
+      handleHashApi();
     }
 
     document.addEventListener('DOMContentLoaded', init);
