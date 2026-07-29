@@ -261,177 +261,59 @@
       <div class="bg-gray-800 brutalist-border p-6 mb-6">
         <div class="flex items-center gap-3 mb-6">
           <span class="text-xs font-bold tracking-wider text-red-600 bg-red-900/20 border-2 border-red-600 px-2 py-0.5 rounded">API</span>
-          <h2 class="text-sm font-semibold tracking-widest text-gray-200 font-title">AUTOMATED API INTEGRATION</h2>
+          <h2 class="text-sm font-semibold tracking-widest text-gray-200 font-title">WEB API & INTEGRATION</h2>
           <div class="flex-1 h-px bg-gradient-to-r from-gray-700 to-transparent"></div>
         </div>
 
         <div class="space-y-8">
           
           <div class="bg-gray-900 rounded p-5 border-2 border-black">
-            <h3 class="text-red-600 font-bold text-lg mb-2 font-title">ENDPOINT URL</h3>
-            <div class="bg-black p-3 rounded border border-gray-700 font-mono text-sm text-green-400 break-all">
-              https://raw.githubusercontent.com/ScriptObfuscator2/Scripts/main/{ID}
+            <h3 class="text-red-600 font-bold text-lg mb-4 font-title">LIVE API TESTER</h3>
+            <p class="text-gray-400 text-sm mb-4">Test the decryption engine directly in your browser. Input an ID and receive the raw decrypted output.</p>
+            
+            <div class="flex gap-2 mb-4">
+              <input type="text" id="apiTestId" class="flex-1 bg-black border-2 border-gray-700 rounded px-3 py-2 text-gray-200 font-mono text-sm focus:border-red-600 outline-none" placeholder="Enter Script ID (e.g. 2723928466610)" />
+              <button id="apiTestBtn" class="bg-red-900/20 border-2 border-red-600 text-red-600 px-4 py-2 rounded font-bold hover:bg-red-900/40 transition">TEST</button>
             </div>
-            <p class="text-gray-400 text-sm mt-2">Replace <span class="text-red-400">{ID}</span> with the target script identifier.</p>
+
+            <div id="apiTestOutput" class="hidden">
+              <label class="block text-xs font-semibold tracking-widest text-gray-500 mb-2">OUTPUT RESULT:</label>
+              <pre class="bg-black p-4 rounded border-2 border-gray-700 font-mono text-xs text-green-400 overflow-x-auto max-h-60 whitespace-pre-wrap" id="apiTestResult"></pre>
+            </div>
           </div>
 
           <div class="bg-gray-900 rounded p-5 border-2 border-black">
-            <h3 class="text-red-600 font-bold text-lg mb-4 font-title">PYTHON IMPLEMENTATION (AUTO-DECRYPT)</h3>
+            <h3 class="text-red-600 font-bold text-lg mb-2 font-title">JAVASCRIPT CONSOLE API</h3>
+            <p class="text-gray-400 text-sm mb-4">Developers can use the global `axomic` object in their browser console or embed it in their own sites.</p>
+            
+            <div class="relative group">
+              <pre class="bg-black p-4 rounded border border-gray-700 font-mono text-xs text-gray-300 overflow-x-auto"><code>// Decrypt a single script
+const result = await window.axomic.decrypt('2723928466610');
+console.log(result); // Returns raw Lua string
+
+// Get current status
+const status = window.axomic.getStatus();
+
+// Clear history
+window.axomic.clearHistory();</code></pre>
+              <button class="absolute top-2 right-2 bg-gray-800 border border-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-700 transition copy-btn">COPY</button>
+            </div>
+          </div>
+
+          <div class="bg-gray-900 rounded p-5 border-2 border-black">
+            <h3 class="text-red-600 font-bold text-lg mb-4 font-title">PYTHON IMPLEMENTATION (EXTERNAL)</h3>
+            <p class="text-gray-400 text-sm mb-4">For external applications, fetch the raw JSON and decrypt locally.</p>
             <div class="relative group">
               <pre class="bg-black p-4 rounded border border-gray-700 font-mono text-xs text-gray-300 overflow-x-auto"><code>import requests
-import base64
-import json
+# 1. Fetch Raw Data
+url = "https://raw.githubusercontent.com/ScriptObfuscator2/Scripts/main/YOUR_ID"
+data = requests.get(url).json()
 
-def base32_decode(input_str):
-    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
-    input_str = input_str.upper().replace('=', '').replace(' ', '')
-    output = []
-    buffer = 0
-    bits_left = 0
-    for char in input_str:
-        idx = alphabet.index(char)
-        buffer = (buffer << 5) | idx
-        bits_left += 5
-        if bits_left >= 8:
-            bits_left -= 8
-            output.append((buffer >> bits_left) & 0xFF)
-    return bytes(output)
-
-def xor_decrypt(data, key):
-    key_bytes = key.encode('utf-8')
-    result = bytearray(len(data))
-    for i in range(len(data)):
-        result[i] = data[i] ^ key_bytes[i % len(key_bytes)]
-    return result.decode('utf-8')
-
-def decrypt_script(script_id):
-    url = f"https://raw.githubusercontent.com/ScriptObfuscator2/Scripts/main/{script_id}"
-    response = requests.get(url)
-    response.raise_for_status()
-    data = response.json()
-    
-    decoded = base32_decode(data['Script'])
-    return xor_decrypt(decoded, data['Key'])
-
-if __name__ == "__main__":
-    try:
-        lua_code = decrypt_script("2723928466610")
-        print(lua_code)
-    except Exception as e:
-        print(f"Error: {e}")</code></pre>
-              <button class="absolute top-2 right-2 bg-gray-800 border border-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-700 transition copy-btn" data-target="python-code">COPY</button>
-            </div>
-          </div>
-
-          <div class="bg-gray-900 rounded p-5 border-2 border-black">
-            <h3 class="text-red-600 font-bold text-lg mb-4 font-title">JAVASCRIPT / NODE.JS IMPLEMENTATION (AUTO-DECRYPT)</h3>
-            <div class="relative group">
-              <pre class="bg-black p-4 rounded border border-gray-700 font-mono text-xs text-gray-300 overflow-x-auto"><code>async function base32Decode(input) {
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-    input = input.toUpperCase().replace(/=+$/, '').replace(/\s/g, '');
-    const output = [];
-    let buffer = 0;
-    let bitsLeft = 0;
-    
-    for (let i = 0; i < input.length; i++) {
-        const charIdx = alphabet.indexOf(input[i]);
-        if (charIdx === -1) throw new Error('Invalid Base32');
-        buffer = (buffer << 5) | charIdx;
-        bitsLeft += 5;
-        if (bitsLeft >= 8) {
-            bitsLeft -= 8;
-            output.push((buffer >>> bitsLeft) & 0xFF);
-        }
-    }
-    return new Uint8Array(output);
-}
-
-function xorDecrypt(data, key) {
-    const keyBytes = new TextEncoder().encode(key);
-    const result = new Uint8Array(data.length);
-    for (let i = 0; i < data.length; i++) {
-        result[i] = data[i] ^ keyBytes[i % keyBytes.length];
-    }
-    return new TextDecoder('utf-8').decode(result);
-}
-
-async function decryptScript(id) {
-    const url = `https://raw.githubusercontent.com/ScriptObfuscator2/Scripts/main/${encodeURIComponent(id)}`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const json = await response.json();
-    
-    const decoded = await base32Decode(json.Script);
-    return xorDecrypt(decoded, json.Key);
-}
-
-decryptScript('2723928466610')
-    .then(lua => console.log(lua))
-    .catch(err => console.error(err));</code></pre>
-              <button class="absolute top-2 right-2 bg-gray-800 border border-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-700 transition copy-btn" data-target="js-code">COPY</button>
-            </div>
-          </div>
-
-          <div class="bg-gray-900 rounded p-5 border-2 border-black">
-            <h3 class="text-red-600 font-bold text-lg mb-4 font-title">PHP IMPLEMENTATION (AUTO-DECRYPT)</h3>
-            <div class="relative group">
-              <pre class="bg-black p-4 rounded border border-gray-700 font-mono text-xs text-gray-300 overflow-x-auto"><code>&lt;?php
-function base32Decode($input) {
-    $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-    $input = strtoupper(str_replace(['=', ' '], '', $input));
-    $output = [];
-    $buffer = 0;
-    $bitsLeft = 0;
-    
-    for ($i = 0; $i < strlen($input); $i++) {
-        $char = $input[$i];
-        $idx = strpos($alphabet, $char);
-        if ($idx === false) throw new Exception("Invalid Base32");
-        
-        $buffer = ($buffer << 5) | $idx;
-        $bitsLeft += 5;
-        
-        if ($bitsLeft >= 8) {
-            $bitsLeft -= 8;
-            $output[] = ($buffer >> $bitsLeft) & 0xFF;
-        }
-    }
-    return pack('C*', ...$output);
-}
-
-function xorDecrypt($data, $key) {
-    $keyBytes = $key;
-    $result = '';
-    $keyLen = strlen($keyBytes);
-    $dataLen = strlen($data);
-    
-    for ($i = 0; $i < $dataLen; $i++) {
-        $result .= chr(ord($data[$i]) ^ ord($keyBytes[$i % $keyLen]));
-    }
-    return $result;
-}
-
-function decryptScript($id) {
-    $url = "https://raw.githubusercontent.com/ScriptObfuscator2/Scripts/main/" . urlencode($id);
-    $json = file_get_contents($url);
-    if ($json === false) throw new Exception("Failed to fetch");
-    
-    $data = json_decode($json, true);
-    if (!$data || !isset($data['Key']) || !isset($data['Script'])) {
-        throw new Exception("Invalid JSON structure");
-    }
-    
-    $decoded = base32Decode($data['Script']);
-    return xorDecrypt($decoded, $data['Key']);
-}
-
-try {
-    echo decryptScript("2723928466610");
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
-}
-?&gt;</code></pre>
-              <button class="absolute top-2 right-2 bg-gray-800 border border-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-700 transition copy-btn" data-target="php-code">COPY</button>
+# 2. Decrypt (Logic handled by your local script)
+# Note: This website handles decryption client-side automatically.
+print(data['Key']) 
+print(data['Script'])</code></pre>
+              <button class="absolute top-2 right-2 bg-gray-800 border border-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-700 transition copy-btn">COPY</button>
             </div>
           </div>
 
@@ -677,6 +559,11 @@ try {
     const batchResultsPanel = document.getElementById('batchResultsPanel');
     const batchResults = document.getElementById('batchResults');
     const exportBatchBtn = document.getElementById('exportBatchBtn');
+    
+    const apiTestId = document.getElementById('apiTestId');
+    const apiTestBtn = document.getElementById('apiTestBtn');
+    const apiTestOutput = document.getElementById('apiTestOutput');
+    const apiTestResult = document.getElementById('apiTestResult');
 
     let currentScript = '';
     let currentId = '';
@@ -974,6 +861,28 @@ try {
       batchResults_data = [];
     }
 
+    async function runApiTest() {
+      const id = apiTestId.value.trim();
+      if (!id) return;
+      
+      apiTestBtn.innerText = 'PROCESSING...';
+      apiTestBtn.disabled = true;
+      apiTestOutput.classList.remove('hidden');
+      apiTestResult.innerText = 'Fetching and decrypting...';
+      
+      try {
+        const data = await fetchScriptData(id, requestManager);
+        const lua = decrypt(data.Script, data.Key);
+        apiTestResult.innerText = lua;
+      } catch (err) {
+        apiTestResult.innerText = 'Error: ' + err.message;
+        apiTestResult.classList.add('text-red-500');
+      } finally {
+        apiTestBtn.innerText = 'TEST';
+        apiTestBtn.disabled = false;
+      }
+    }
+
     function initEventListeners() {
       themeSwitcher.addEventListener('change', (e) => {
         applyTheme(e.target.value);
@@ -1021,6 +930,8 @@ try {
       batchDecryptBtn.addEventListener('click', runBatchDecrypt);
       batchClearBtn.addEventListener('click', clearBatch);
       exportBatchBtn.addEventListener('click', downloadBatchResults);
+      
+      apiTestBtn.addEventListener('click', runApiTest);
 
       document.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1052,6 +963,12 @@ try {
         mainTab.classList.add('border-red-600');
         mainTab.classList.remove('border-transparent');
       }
+      
+      window.axomic = {
+        decrypt: runDecrypt,
+        getStatus: () => ({ status: statusText.textContent, currentId }),
+        clearHistory: clearAllHistory
+      };
     }
 
     document.addEventListener('DOMContentLoaded', init);
