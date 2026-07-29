@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Axomic | Encryptx Decryptor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Share Tech Mono', 'monospace'],
+            title: ['Rajdhani', 'sans-serif'],
+          },
+          colors: {
+            accent: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+              950: '#022c22',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .brutalist-border {
+      border: 3px solid #000;
+      box-shadow: 4px 4px 0px #000;
+    }
+    .brutalist-btn {
+      border: 2px solid #000;
+      box-shadow: 3px 3px 0px #000;
+      transition: all 0.1s;
+    }
+    .brutalist-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px #000;
+    }
+    .theme-light {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f0f0f0;
+      --text-primary: #000000;
+      --text-secondary: #333333;
+      --border-color: #000000;
+      --accent-color: #ff0000;
+    }
+    .theme-dark {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #ffffff;
+      --text-secondary: #cccccc;
+      --border-color: #ffffff;
+      --accent-color: #00ff00;
+    }
+    .theme-red {
+      --bg-primary: #2a0000;
+      --bg-secondary: #3a0000;
+      --text-primary: #ffcccc;
+      --text-secondary: #ff9999;
+      --border-color: #ff0000;
+      --accent-color: #ff0000;
+    }
+    body.theme-light {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    body.theme-dark {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    body.theme-red {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+</head>
+<body class="font-mono antialiased min-h-screen transition-colors theme-dark">
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+
+  <header class="flex items-center justify-between py-6 border-b-4 border-black mb-8">
+    <div class="flex items-center gap-4">
+      <svg class="w-12 h-12 text-red-600" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M24 4L40 13V35L24 44L8 35V13L24 4Z" stroke="currentColor" fill="none"/>
+        <circle cx="24" cy="24" r="6" stroke="currentColor" fill="none"/>
+        <path d="M24 18V24L28 28" stroke="#ff0000" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1 class="text-3xl font-bold tracking-widest text-red-600 leading-none">AXOMIC</h1>
+        <span class="text-xs tracking-wider text-gray-500 block mt-1">ENCRYPTX DECRYPTOR</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-red-600 animate-pulse" id="statusDot"></span>
+        <span class="text-xs tracking-widest text-gray-500" id="statusText">READY</span>
+      </div>
+      <select id="themeSwitcher" class="bg-gray-800 border-2 border-black text-white px-2 py-1 text-xs font-mono">
+        <option value="theme-dark">DARK</option>
+        <option value="theme-light">LIGHT</option>
+        <option value="theme-red">RED</option>
+      </select>
+    </div>
+  </header>
+
+  <nav class="flex gap-2 border-b-4 border-black overflow-x-auto mb-6">
+    <button class="tab-btn active px-5 py-3 bg-transparent border-b-4 border-transparent text-gray-500 font-title text-sm font-semibold tracking-wider hover:text-red-600 hover:border-red-600 transition whitespace-nowrap" data-tab="main">MAIN</button>
+    <button class="tab-btn px-5 py-3 bg-transparent border-b-4 border-transparent text-gray-500 font-title text-sm font-semibold tracking-wider hover:text-red-600 hover:border-red-600 transition whitespace-nowrap" data-tab="api">API DOCS</button>
+  </nav>
+
+  <main>
+
+    <section class="tab-content active block" id="tab-main">
+
+      <div class="bg-gray-800 brutalist-border p-6 mb-6" id="inputPanel">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-xs font-bold tracking-wider text-red-600 bg-red-900/20 border-2 border-red-600 px-2 py-0.5 rounded">01</span>
+          <h2 class="text-sm font-semibold tracking-widest text-gray-200 font-title">SINGLE DECRYPT</h2>
+          <div class="flex-1 h-px bg-gradient-to-r from-gray-700 to-transparent"></div>
+        </div>
+
+        <div class="mb-5">
+          <label class="block text-xs font-semibold tracking-widest text-gray-400 mb-2" for="scriptInput">ENCRYPT X LINK OR SCRIPT ID</label>
+          <div class="flex gap-2">
+            <input type="text" id="scriptInput" class="flex-1 bg-gray-900 border-2 border-black rounded px-4 py-3 text-gray-200 font-mono text-sm focus:border-red-600 outline-none transition" placeholder="https://encrypt-x.pages.dev/Scripts?Id=XXXX or XXXX" autocomplete="off" spellcheck="false" />
+            <button class="bg-gray-900 border-2 border-black rounded px-4 text-gray-400 hover:text-red-600 hover:border-red-600 transition flex items-center brutalist-btn" id="pasteBtn" title="Paste from clipboard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
+            </button>
+          </div>
+          <p class="text-xs text-gray-500 mt-2 tracking-wide">Accepts full URL or numeric/alphanumeric Script ID</p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button class="flex items-center gap-2 bg-transparent border-2 border-red-600 text-red-600 px-5 py-3 rounded font-title font-semibold tracking-widest text-sm relative overflow-hidden hover:bg-red-900/10 brutalist-btn disabled:opacity-40 disabled:cursor-not-allowed" id="decryptBtn">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+            <span>DECRYPT SCRIPT</span>
+          </button>
+          <button class="bg-transparent border-2 border-black text-gray-400 px-5 py-3 rounded font-title font-semibold tracking-widest text-sm hover:text-gray-200 hover:border-gray-500 brutalist-btn" id="clearBtn">CLEAR</button>
+        </div>
+
+        <div class="hidden mt-5" id="loaderWrap">
+          <div class="h-0.5 bg-gray-700 rounded overflow-hidden mb-3">
+            <div class="h-full w-0 bg-gradient-to-r from-red-600 to-red-400 transition-all duration-400" id="loaderBar"></div>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <span class="step text-xs text-gray-500 tracking-wider transition" id="step1">▸ Extracting ID</span>
+            <span class="step text-xs text-gray-500 tracking-wider transition" id="step2">▸ Fetching from GitHub</span>
+            <span class="step text-xs text-gray-500 tracking-wider transition" id="step3">▸ Decrypting payload</span>
+            <span class="step text-xs text-gray-500 tracking-wider transition" id="step4">▸ Rendering output</span>
+          </div>
+        </div>
+
+        <div class="hidden mt-4 flex items-start gap-3 bg-red-900/20 border-2 border-red-600 rounded p-3 text-red-300" id="errorAlert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5 flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12" y2="16"/></svg>
+          <span id="errorMsg">An error occurred.</span>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 brutalist-border p-6 mb-6 hidden" id="outputPanel">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-xs font-bold tracking-wider text-red-600 bg-red-900/20 border-2 border-red-600 px-2 py-0.5 rounded">02</span>
+          <h2 class="text-sm font-semibold tracking-widest text-gray-200 font-title">DECRYPTED OUTPUT</h2>
+          <div class="flex-1 h-px bg-gradient-to-r from-gray-700 to-transparent"></div>
+        </div>
+
+        <div class="flex flex-wrap gap-5 mb-5" id="outputMeta"></div>
+
+        <div class="border-2 border-black rounded overflow-hidden">
+          <div class="flex items-center justify-between flex-wrap gap-3 bg-gray-900 border-b-2 border-black px-4 py-2.5">
+            <span class="flex items-center gap-2 text-xs font-semibold tracking-widest text-gray-400 font-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+              LUA SCRIPT
+            </span>
+            <div class="flex gap-2">
+              <button class="flex items-center gap-1.5 bg-transparent border-2 border-black rounded px-3 py-1.5 text-gray-400 font-title text-xs font-semibold tracking-wider hover:text-red-600 hover:border-red-600 brutalist-btn" id="copyBtn" title="Copy to clipboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                <span>COPY</span>
+              </button>
+              <button class="flex items-center gap-1.5 bg-transparent border-2 border-black rounded px-3 py-1.5 text-gray-400 font-title text-xs font-semibold tracking-wider hover:text-red-600 hover:border-red-600 brutalist-btn" id="downloadBtn" title="Download .lua file">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>DOWNLOAD</span>
+              </button>
+            </div>
+          </div>
+          <pre class="bg-gray-950 p-5 max-h-96 overflow-auto"><code id="codeContent" class="text-gray-300 text-sm leading-relaxed whitespace-pre font-mono"></code></pre>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 brutalist-border p-6 mb-6" id="batchPanel">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-xs font-bold tracking-wider text-red-600 bg-red-900/20 border-2 border-red-600 px-2 py-0.5 rounded">B1</span>
+          <h2 class="text-sm font-semibold tracking-widest text-gray-200 font-title">BATCH DECRYPTION</h2>
+          <div class="flex-1 h-px bg-gradient-to-r from-gray-700 to-transparent"></div>
+        </div>
+
+        <div class="mb-5">
+          <label class="block text-xs font-semibold tracking-widest text-gray-400 mb-2" for="batchInput">PASTE SCRIPT IDs (one per line)</label>
+          <textarea id="batchInput" class="w-full bg-gray-900 border-2 border-black rounded px-4 py-3 text-gray-200 font-mono text-sm resize-y min-h-36 focus:border-red-600 outline-none transition" placeholder="2723928466610&#10;1234567890&#10;https://encrypt-x.pages.dev/Scripts?Id=9876543210" rows="6"></textarea>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button class="flex items-center gap-2 bg-transparent border-2 border-red-600 text-red-600 px-5 py-3 rounded font-title font-semibold tracking-widest text-sm relative overflow-hidden hover:bg-red-900/10 brutalist-btn disabled:opacity-40 disabled:cursor-not-allowed" id="batchDecryptBtn">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></span>
+            <span>START BATCH</span>
+          </button>
+          <button class="bg-transparent border-2 border-black text-gray-400 px-5 py-3 rounded font-title font-semibold tracking-widest text-sm hover:text-gray-200 hover:border-gray-500 brutalist-btn" id="batchClearBtn">CLEAR</button>
+        </div>
+
+        <div class="hidden mt-5" id="batchProgress">
+          <div class="h-0.5 bg-gray-700 rounded overflow-hidden">
+            <div class="h-full w-0 bg-gradient-to-r from-red-600 to-red-400 transition-all duration-400" id="batchProgressFill"></div>
+          </div>
+          <p class="text-center text-gray-500 mt-2.5" id="progressStatus">0/0 completed</p>
+        </div>
+
+        <div class="bg-gray-800 brutalist-border p-6 mt-6 hidden" id="batchResultsPanel">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-xs font-bold tracking-wider text-red-600 bg-red-900/20 border-2 border-red-600 px-2 py-0.5 rounded">B2</span>
+            <h2 class="text-sm font-semibold tracking-widest text-gray-200 font-title">BATCH RESULTS</h2>
+            <div class="flex-1 h-px bg-gradient-to-r from-gray-700 to-transparent"></div>
+            <button class="text-xs tracking-wide text-gray-500 border-2 border-black rounded px-2 py-0.5 hover:text-red-600 hover:border-red-600 brutalist-btn" id="exportBatchBtn">EXPORT JSON</button>
+          </div>
+          <div id="batchResults" class="flex flex-col gap-2.5"></div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 brutalist-border p-6 mb-6" id="historyPanel">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-xs font-bold tracking-wider text-red-600 bg-red-900/20 border-2 border-red-600 px-2 py-0.5 rounded">03</span>
+          <h2 class="text-sm font-semibold tracking-widest text-gray-200 font-title">RECENT DECRYPTIONS</h2>
+          <div class="flex-1 h-px bg-gradient-to-r from-gray-700 to-transparent"></div>
+          <button class="text-xs tracking-wide text-gray-500 border-2 border-black rounded px-2 py-0.5 hover:text-red-600 hover:border-red-600 brutalist-btn" id="clearHistoryBtn">CLEAR ALL</button>
+        </div>
+        <div class="flex flex-col gap-2.5" id="historyList">
+          <p class="text-sm text-gray-500 text-center py-5">No decryptions yet. Start decrypting!</p>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="tab-content" id="tab-api">
+      <div class="bg-gray-800 brutalist-border p-6 mb-6">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-xs font-bold tracking-wider text-red-600 bg-red-900/20 border-2 border-red-600 px-2 py-0.5 rounded">API</span>
+          <h2 class="text-sm font-semibold tracking-widest text-gray-200 font-title">AUTOMATED API INTEGRATION</h2>
+          <div class="flex-1 h-px bg-gradient-to-r from-gray-700 to-transparent"></div>
+        </div>
+
+        <div class="space-y-8">
+          
+          <div class="bg-gray-900 rounded p-5 border-2 border-black">
+            <h3 class="text-red-600 font-bold text-lg mb-2 font-title">ENDPOINT URL</h3>
+            <div class="bg-black p-3 rounded border border-gray-700 font-mono text-sm text-green-400 break-all">
+              https://raw.githubusercontent.com/ScriptObfuscator2/Scripts/main/{ID}
+            </div>
+            <p class="text-gray-400 text-sm mt-2">Replace <span class="text-red-400">{ID}</span> with the target script identifier.</p>
+          </div>
+
+          <div class="bg-gray-900 rounded p-5 border-2 border-black">
+            <h3 class="text-red-600 font-bold text-lg mb-4 font-title">PYTHON IMPLEMENTATION (AUTO-DECRYPT)</h3>
+            <div class="relative group">
+              <pre class="bg-black p-4 rounded border border-gray-700 font-mono text-xs text-gray-300 overflow-x-auto"><code>import requests
+import base64
+import json
+
+def base32_decode(input_str):
+    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
+    input_str = input_str.upper().replace('=', '').replace(' ', '')
+    output = []
+    buffer = 0
+    bits_left = 0
+    for char in input_str:
+        idx = alphabet.index(char)
+        buffer = (buffer << 5) | idx
+        bits_left += 5
+        if bits_left >= 8:
+            bits_left -= 8
+            output.append((buffer >> bits_left) & 0xFF)
+    return bytes(output)
+
+def xor_decrypt(data, key):
+    key_bytes = key.encode('utf-8')
+    result = bytearray(len(data))
+    for i in range(len(data)):
+        result[i] = data[i] ^ key_bytes[i % len(key_bytes)]
+    return result.decode('utf-8')
+
+def decrypt_script(script_id):
+    url = f"https://raw.githubusercontent.com/ScriptObfuscator2/Scripts/main/{script_id}"
+    response = requests.get(url)
+    response.raise_for_status()
+    data = response.json()
+    
+    decoded = base32_decode(data['Script'])
+    return xor_decrypt(decoded, data['Key'])
+
+if __name__ == "__main__":
+    try:
+        lua_code = decrypt_script("2723928466610")
+        print(lua_code)
+    except Exception as e:
+        print(f"Error: {e}")</code></pre>
+              <button class="absolute top-2 right-2 bg-gray-800 border border-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-700 transition copy-btn" data-target="python-code">COPY</button>
+            </div>
+          </div>
+
+          <div class="bg-gray-900 rounded p-5 border-2 border-black">
+            <h3 class="text-red-600 font-bold text-lg mb-4 font-title">JAVASCRIPT / NODE.JS IMPLEMENTATION (AUTO-DECRYPT)</h3>
+            <div class="relative group">
+              <pre class="bg-black p-4 rounded border border-gray-700 font-mono text-xs text-gray-300 overflow-x-auto"><code>async function base32Decode(input) {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    input = input.toUpperCase().replace(/=+$/, '').replace(/\s/g, '');
+    const output = [];
+    let buffer = 0;
+    let bitsLeft = 0;
+    
+    for (let i = 0; i < input.length; i++) {
+        const charIdx = alphabet.indexOf(input[i]);
+        if (charIdx === -1) throw new Error('Invalid Base32');
+        buffer = (buffer << 5) | charIdx;
+        bitsLeft += 5;
+        if (bitsLeft >= 8) {
+            bitsLeft -= 8;
+            output.push((buffer >>> bitsLeft) & 0xFF);
+        }
+    }
+    return new Uint8Array(output);
+}
+
+function xorDecrypt(data, key) {
+    const keyBytes = new TextEncoder().encode(key);
+    const result = new Uint8Array(data.length);
+    for (let i = 0; i < data.length; i++) {
+        result[i] = data[i] ^ keyBytes[i % keyBytes.length];
+    }
+    return new TextDecoder('utf-8').decode(result);
+}
+
+async function decryptScript(id) {
+    const url = `https://raw.githubusercontent.com/ScriptObfuscator2/Scripts/main/${encodeURIComponent(id)}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const json = await response.json();
+    
+    const decoded = await base32Decode(json.Script);
+    return xorDecrypt(decoded, json.Key);
+}
+
+decryptScript('2723928466610')
+    .then(lua => console.log(lua))
+    .catch(err => console.error(err));</code></pre>
+              <button class="absolute top-2 right-2 bg-gray-800 border border-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-700 transition copy-btn" data-target="js-code">COPY</button>
+            </div>
+          </div>
+
+          <div class="bg-gray-900 rounded p-5 border-2 border-black">
+            <h3 class="text-red-600 font-bold text-lg mb-4 font-title">PHP IMPLEMENTATION (AUTO-DECRYPT)</h3>
+            <div class="relative group">
+              <pre class="bg-black p-4 rounded border border-gray-700 font-mono text-xs text-gray-300 overflow-x-auto"><code>&lt;?php
+function base32Decode($input) {
+    $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    $input = strtoupper(str_replace(['=', ' '], '', $input));
+    $output = [];
+    $buffer = 0;
+    $bitsLeft = 0;
+    
+    for ($i = 0; $i < strlen($input); $i++) {
+        $char = $input[$i];
+        $idx = strpos($alphabet, $char);
+        if ($idx === false) throw new Exception("Invalid Base32");
+        
+        $buffer = ($buffer << 5) | $idx;
+        $bitsLeft += 5;
+        
+        if ($bitsLeft >= 8) {
+            $bitsLeft -= 8;
+            $output[] = ($buffer >> $bitsLeft) & 0xFF;
+        }
+    }
+    return pack('C*', ...$output);
+}
+
+function xorDecrypt($data, $key) {
+    $keyBytes = $key;
+    $result = '';
+    $keyLen = strlen($keyBytes);
+    $dataLen = strlen($data);
+    
+    for ($i = 0; $i < $dataLen; $i++) {
+        $result .= chr(ord($data[$i]) ^ ord($keyBytes[$i % $keyLen]));
+    }
+    return $result;
+}
+
+function decryptScript($id) {
+    $url = "https://raw.githubusercontent.com/ScriptObfuscator2/Scripts/main/" . urlencode($id);
+    $json = file_get_contents($url);
+    if ($json === false) throw new Exception("Failed to fetch");
+    
+    $data = json_decode($json, true);
+    if (!$data || !isset($data['Key']) || !isset($data['Script'])) {
+        throw new Exception("Invalid JSON structure");
+    }
+    
+    $decoded = base32Decode($data['Script']);
+    return xorDecrypt($decoded, $data['Key']);
+}
+
+try {
+    echo decryptScript("2723928466610");
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}
+?&gt;</code></pre>
+              <button class="absolute top-2 right-2 bg-gray-800 border border-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-700 transition copy-btn" data-target="php-code">COPY</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<script>
+  (function() {
+    'use strict';
+
+    class StorageManager {
+      constructor() {
+        this.prefix = 'cryptid_';
+      }
+      set(key, value) {
+        try {
+          localStorage.setItem(this.prefix + key, JSON.stringify(value));
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+      get(key, defaultValue = null) {
+        try {
+          const value = localStorage.getItem(this.prefix + key);
+          return value ? JSON.parse(value) : defaultValue;
+        } catch (e) {
+          return defaultValue;
+        }
+      }
+      remove(key) {
+        try {
+          localStorage.removeItem(this.prefix + key);
+          return true;
+        } catch {
+          return false;
+        }
+      }
+      clear() {
+        try {
+          Object.keys(localStorage).forEach(key => {
+            if (key.startsWith(this.prefix)) {
+              localStorage.removeItem(key);
+            }
+          });
+          return true;
+        } catch {
+          return false;
+        }
+      }
+    }
+
+    class RequestManager {
+      constructor(maxRetries = 3, timeout = 10000) {
+        this.maxRetries = maxRetries;
+        this.timeout = timeout;
+      }
+      async fetch(url, options = {}) {
+        let lastError;
+        for (let attempt = 0; attempt < this.maxRetries; attempt++) {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+            const response = await window.fetch(url, {
+              ...options,
+              signal: controller.signal,
+              cache: 'no-store'
+            });
+            clearTimeout(timeoutId);
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            return response;
+          } catch (e) {
+            lastError = e;
+            if (attempt < this.maxRetries - 1) {
+              await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+            }
+          }
+        }
+        throw lastError || new Error('Request failed');
+      }
+    }
+
+    class CryptidUtils {
+      static escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+      static formatBytes(n) {
+        if (n < 1024) return n + ' B';
+        if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+        return (n / (1024 * 1024)).toFixed(2) + ' MB';
+      }
+      static formatDate(ts) {
+        return new Date(ts).toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+      static extractId(raw) {
+        raw = raw.trim();
+        if (!raw) return null;
+        try {
+          const url = new URL(raw);
+          const id = url.searchParams.get('Id') || url.searchParams.get('id') || url.searchParams.get('ID');
+          if (id) return id.trim();
+        } catch { }
+        if (/^[\w\-]+$/.test(raw)) return raw;
+        const m = raw.match(/[?&]Id=([^&\s]+)/i);
+        if (m) return m[1].trim();
+        return null;
+      }
+      static delay(ms) {
+        return new Promise(r => setTimeout(r, ms));
+      }
+      static async copyToClipboard(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none;';
+          document.body.appendChild(ta);
+          ta.select();
+          const success = document.execCommand('copy');
+          document.body.removeChild(ta);
+          return success;
+        }
+      }
+      static downloadFile(content, filename) {
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }
+    }
+
+    function base32Decode(input) {
+      const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+      input = input.toUpperCase().replace(/=+$/, '').replace(/\s/g, '');
+      const output = [];
+      let buffer = 0;
+      let bitsLeft = 0;
+      for (let i = 0; i < input.length; i++) {
+        const charIdx = ALPHABET.indexOf(input[i]);
+        if (charIdx === -1) {
+          throw new Error(`Invalid Base32 character: "${input[i]}" at position ${i}`);
+        }
+        buffer = (buffer << 5) | charIdx;
+        bitsLeft += 5;
+        if (bitsLeft >= 8) {
+          bitsLeft -= 8;
+          output.push((buffer >>> bitsLeft) & 0xFF);
+        }
+      }
+      return new Uint8Array(output);
+    }
+
+    function xorDecrypt(data, key) {
+      const keyBytes = new TextEncoder().encode(key);
+      const result = new Uint8Array(data.length);
+      for (let i = 0; i < data.length; i++) {
+        result[i] = data[i] ^ keyBytes[i % keyBytes.length];
+      }
+      return new TextDecoder('utf-8').decode(result);
+    }
+
+    function decrypt(scriptField, keyField) {
+      const decoded = base32Decode(scriptField);
+      return xorDecrypt(decoded, keyField);
+    }
+
+    async function fetchScriptData(id, requestManager) {
+      const url = `https://raw.githubusercontent.com/ScriptObfuscator2/Scripts/main/${encodeURIComponent(id)}`;
+      const response = await requestManager.fetch(url);
+      const text = await response.text();
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        throw new Error('Response from GitHub is not valid JSON.');
+      }
+      if (!json.Key || !json.Script) {
+        throw new Error('JSON is missing required "Key" or "Script" fields.');
+      }
+      return json;
+    }
+
+    const storage = new StorageManager();
+    const requestManager = new RequestManager(3, 10000);
+
+    const themeSwitcher = document.getElementById('themeSwitcher');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const scriptInput = document.getElementById('scriptInput');
+    const decryptBtn = document.getElementById('decryptBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const pasteBtn = document.getElementById('pasteBtn');
+    const loaderWrap = document.getElementById('loaderWrap');
+    const loaderBar = document.getElementById('loaderBar');
+    const errorAlert = document.getElementById('errorAlert');
+    const errorMsg = document.getElementById('errorMsg');
+    const outputPanel = document.getElementById('outputPanel');
+    const outputMeta = document.getElementById('outputMeta');
+    const codeContent = document.getElementById('codeContent');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const historyList = document.getElementById('historyList');
+    const clearHistBtn = document.getElementById('clearHistoryBtn');
+    const steps = [
+      document.getElementById('step1'),
+      document.getElementById('step2'),
+      document.getElementById('step3'),
+      document.getElementById('step4'),
+    ];
+    const batchInput = document.getElementById('batchInput');
+    const batchDecryptBtn = document.getElementById('batchDecryptBtn');
+    const batchClearBtn = document.getElementById('batchClearBtn');
+    const batchProgress = document.getElementById('batchProgress');
+    const batchProgressFill = document.getElementById('batchProgressFill');
+    const progressStatus = document.getElementById('progressStatus');
+    const batchResultsPanel = document.getElementById('batchResultsPanel');
+    const batchResults = document.getElementById('batchResults');
+    const exportBatchBtn = document.getElementById('exportBatchBtn');
+
+    let currentScript = '';
+    let currentId = '';
+    let batchResults_data = [];
+
+    function applyTheme(theme) {
+      document.body.className = 'font-mono antialiased min-h-screen transition-colors ' + theme;
+      storage.set('theme', theme);
+    }
+
+    function initTheme() {
+      const saved = storage.get('theme', 'theme-dark');
+      applyTheme(saved);
+      themeSwitcher.value = saved;
+    }
+
+    function loadHistory() {
+      return storage.get('history', []);
+    }
+
+    function saveHistory(items) {
+      storage.set('history', items);
+    }
+
+    function addHistoryEntry(id, size, date) {
+      const items = loadHistory();
+      const existing = items.findIndex(i => i.id === id);
+      if (existing !== -1) items.splice(existing, 1);
+      items.unshift({ id, size, date, ts: Date.now() });
+      saveHistory(items);
+      renderHistory();
+    }
+
+    function removeHistoryEntry(id) {
+      const items = loadHistory();
+      const filtered = items.filter(i => i.id !== id);
+      saveHistory(filtered);
+      renderHistory();
+    }
+
+    function clearAllHistory() {
+      saveHistory([]);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const items = loadHistory();
+      if (!items.length) {
+        historyList.innerHTML = '<p class="text-sm text-gray-500 text-center py-5">No decryptions yet. Start decrypting!</p>';
+        return;
+      }
+      historyList.innerHTML = items.map(item => `
+        <div class="history-item flex items-center gap-3.5 bg-gray-900 border-2 border-black rounded p-3 hover:border-red-600 transition cursor-pointer" data-id="${CryptidUtils.escapeHtml(item.id)}">
+          <div class="w-8 h-8 rounded-full bg-red-900/20 border-2 border-red-600 flex items-center justify-center flex-shrink-0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5 text-red-600"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm text-red-600 truncate">${CryptidUtils.escapeHtml(item.id)}</div>
+            <div class="text-xs text-gray-500 mt-0.5">${CryptidUtils.formatDate(item.ts)} · ${CryptidUtils.formatBytes(item.size)}</div>
+          </div>
+          <button class="history-load text-xs tracking-wide text-gray-500 border-2 border-black rounded px-2 py-0.5 hover:text-green-400 hover:border-green-400 brutalist-btn flex-shrink-0 mr-2" data-id="${CryptidUtils.escapeHtml(item.id)}">LOAD</button>
+          <button class="history-trash text-xs tracking-wide text-gray-500 border-2 border-black rounded px-2 py-0.5 hover:text-red-400 hover:border-red-400 brutalist-btn flex-shrink-0" data-id="${CryptidUtils.escapeHtml(item.id)}">🗑</button>
+        </div>
+      `).join('');
+      historyList.querySelectorAll('.history-item').forEach(el => {
+        el.addEventListener('click', e => {
+          if (e.target.tagName === 'BUTTON') return;
+          scriptInput.value = el.dataset.id;
+        });
+      });
+      historyList.querySelectorAll('.history-load').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          scriptInput.value = btn.dataset.id;
+          runDecrypt();
+        });
+      });
+      historyList.querySelectorAll('.history-trash').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          removeHistoryEntry(btn.dataset.id);
+        });
+      });
+    }
+
+    function setStatus(state, label) {
+      statusDot.className = 'w-2 h-2 rounded-full ' + (state === 'busy' ? 'bg-red-600 animate-pulse' : state === 'error' ? 'bg-red-600' : 'bg-red-600 animate-pulse');
+      statusText.textContent = label;
+    }
+
+    function showError(msg) {
+      errorAlert.classList.remove('hidden');
+      errorMsg.textContent = msg;
+      setStatus('error', 'ERROR');
+    }
+
+    function hideError() {
+      errorAlert.classList.add('hidden');
+    }
+
+    function resetSteps() {
+      steps.forEach(s => { s.className = 'step text-xs text-gray-500 tracking-wider transition'; });
+    }
+
+    function setStep(idx, state) {
+      if (idx > 0) steps[idx - 1].className = 'step text-xs text-gray-500 tracking-wider transition done';
+      steps[idx].className = 'step text-xs text-gray-500 tracking-wider transition ' + state;
+      loaderBar.style.width = ((idx + 1) / steps.length * 100) + '%';
+    }
+
+    function setLoading(on) {
+      loaderWrap.classList.toggle('hidden', !on);
+      decryptBtn.disabled = on;
+      if (!on) { resetSteps(); loaderBar.style.width = '0%'; }
+    }
+
+    async function runDecrypt() {
+      const raw = scriptInput.value;
+      hideError();
+      outputPanel.classList.add('hidden');
+      const id = CryptidUtils.extractId(raw);
+      if (!id) {
+        showError('Invalid Script ID or URL format.');
+        return;
+      }
+      currentId = id;
+      setStatus('busy', 'WORKING');
+      setLoading(true);
+      try {
+        setStep(0, 'active');
+        await CryptidUtils.delay(200);
+        setStep(0, 'done');
+        setStep(1, 'active');
+        const data = await fetchScriptData(id, requestManager);
+        setStep(1, 'done');
+        setStep(2, 'active');
+        await CryptidUtils.delay(80);
+        let lua;
+        try {
+          lua = decrypt(data.Script, data.Key);
+        } catch (e) {
+          throw new Error('Decryption failed: ' + e.message);
+        }
+        if (!lua || lua.trim().length === 0) {
+          throw new Error('Decryption produced empty output.');
+        }
+        setStep(2, 'done');
+        setStep(3, 'active');
+        await CryptidUtils.delay(60);
+        currentScript = lua;
+        outputMeta.innerHTML = `
+          <div class="meta-chip flex flex-col gap-0.5">
+            <span class="text-xs tracking-widest text-gray-500 font-title font-semibold">SCRIPT ID</span>
+            <span class="text-sm text-red-600">${CryptidUtils.escapeHtml(id)}</span>
+          </div>
+          <div class="meta-chip flex flex-col gap-0.5">
+            <span class="text-xs tracking-widest text-gray-500 font-title font-semibold">DATE</span>
+            <span class="text-sm text-red-600">${CryptidUtils.escapeHtml(data.Date || 'N/A')}</span>
+          </div>
+          <div class="meta-chip flex flex-col gap-0.5">
+            <span class="text-xs tracking-widest text-gray-500 font-title font-semibold">SIZE</span>
+            <span class="text-sm text-red-600">${CryptidUtils.formatBytes(new TextEncoder().encode(lua).length)}</span>
+          </div>
+          <div class="meta-chip flex flex-col gap-0.5">
+            <span class="text-xs tracking-widest text-gray-500 font-title font-semibold">LINES</span>
+            <span class="text-sm text-red-600">${lua.split('\n').length.toLocaleString()}</span>
+          </div>
+        `;
+        codeContent.textContent = lua;
+        setStep(3, 'done');
+        outputPanel.classList.remove('hidden');
+        addHistoryEntry(id, new TextEncoder().encode(lua).length, data.Date || 'N/A');
+        setStatus('', 'READY');
+        return lua;
+      } catch (err) {
+        showError(err.message || 'Unknown error.');
+        setStatus('error', 'ERROR');
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function runBatchDecrypt() {
+      const input = batchInput.value.trim();
+      if (!input) {
+        showError('Paste at least one Script ID.');
+        return;
+      }
+      const ids = input
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .map(line => CryptidUtils.extractId(line))
+        .filter(id => id !== null);
+      if (ids.length === 0) {
+        showError('No valid Script IDs found.');
+        return;
+      }
+      batchResults_data = [];
+      batchProgress.classList.remove('hidden');
+      batchResultsPanel.classList.add('hidden');
+      batchDecryptBtn.disabled = true;
+      const startTime = Date.now();
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        const progress = ((i + 1) / ids.length * 100);
+        batchProgressFill.style.width = progress + '%';
+        progressStatus.textContent = `${i + 1}/${ids.length} completed`;
+        try {
+          const data = await fetchScriptData(id, requestManager);
+          const lua = decrypt(data.Script, data.Key);
+          batchResults_data.push({
+            id,
+            success: true,
+            size: new TextEncoder().encode(lua).length,
+            date: data.Date || 'N/A',
+            message: 'Successfully decrypted',
+            script: lua
+          });
+        } catch (err) {
+          batchResults_data.push({
+            id,
+            success: false,
+            message: err.message || 'Unknown error'
+          });
+        }
+        if (i < ids.length - 1) {
+          await CryptidUtils.delay(200);
+        }
+      }
+      displayBatchResults();
+      batchProgress.classList.add('hidden');
+      batchDecryptBtn.disabled = false;
+      return batchResults_data;
+    }
+
+    function displayBatchResults() {
+      batchResults.innerHTML = batchResults_data.map((result, idx) => `
+        <div class="batch-result-item flex items-center gap-3 p-3 border-2 rounded ${result.success ? 'border-green-600 bg-green-900/10' : 'border-red-600 bg-red-900/10'}">
+          <div class="result-icon w-6 h-6 flex items-center justify-center font-bold flex-shrink-0 ${result.success ? 'text-green-600' : 'text-red-600'}">
+            ${result.success ? '✓' : '✕'}
+          </div>
+          <div class="result-info flex-1 min-w-0">
+            <div class="result-id text-sm text-red-600 truncate">${CryptidUtils.escapeHtml(result.id)}</div>
+            <div class="result-msg text-xs text-gray-500 mt-0.5">
+              ${result.success
+                ? `${CryptidUtils.formatBytes(result.size)} · ${result.date}`
+                : result.message}
+            </div>
+          </div>
+        </div>
+      `).join('');
+      batchResultsPanel.classList.remove('hidden');
+    }
+
+    async function copyToClipboard() {
+      if (!currentScript) return;
+      const success = await CryptidUtils.copyToClipboard(currentScript);
+      if (success) {
+        copyBtn.classList.add('success');
+        const orig = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5"><polyline points="20,6 9,17 4,12"/></svg><span>COPIED!</span>';
+        setTimeout(() => {
+          copyBtn.classList.remove('success');
+          copyBtn.innerHTML = orig;
+        }, 2000);
+      }
+    }
+
+    function downloadLua() {
+      if (!currentScript || !currentId) return;
+      CryptidUtils.downloadFile(currentScript, `${currentId}_decrypted.lua`);
+    }
+
+    function downloadBatchResults() {
+      const json = JSON.stringify(batchResults_data, null, 2);
+      CryptidUtils.downloadFile(json, 'batch_results.json');
+    }
+
+    function clearAll() {
+      scriptInput.value = '';
+      outputPanel.classList.add('hidden');
+      hideError();
+      currentScript = '';
+      currentId = '';
+      setStatus('', 'READY');
+      scriptInput.focus();
+    }
+
+    function clearBatch() {
+      batchInput.value = '';
+      batchProgress.classList.add('hidden');
+      batchResultsPanel.classList.add('hidden');
+      batchResults_data = [];
+    }
+
+    function initEventListeners() {
+      themeSwitcher.addEventListener('change', (e) => {
+        applyTheme(e.target.value);
+      });
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabName = btn.dataset.tab;
+          tabBtns.forEach(b => {
+            b.classList.remove('active');
+            b.classList.remove('border-red-600');
+            b.classList.add('border-transparent');
+          });
+          tabContents.forEach(c => c.classList.remove('active'));
+          
+          btn.classList.add('active');
+          btn.classList.remove('border-transparent');
+          btn.classList.add('border-red-600');
+          
+          const target = document.getElementById(`tab-${tabName}`);
+          if (target) {
+            target.classList.add('active');
+          }
+        });
+      });
+
+      decryptBtn.addEventListener('click', runDecrypt);
+      clearBtn.addEventListener('click', clearAll);
+      copyBtn.addEventListener('click', copyToClipboard);
+      downloadBtn.addEventListener('click', downloadLua);
+      pasteBtn.addEventListener('click', async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          scriptInput.value = text.trim();
+          scriptInput.focus();
+        } catch {
+          scriptInput.focus();
+        }
+      });
+      scriptInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') runDecrypt();
+      });
+      clearHistBtn.addEventListener('click', clearAllHistory);
+
+      batchDecryptBtn.addEventListener('click', runBatchDecrypt);
+      batchClearBtn.addEventListener('click', clearBatch);
+      exportBatchBtn.addEventListener('click', downloadBatchResults);
+
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const pre = btn.parentElement.querySelector('pre');
+          if (pre) {
+            const code = pre.innerText;
+            CryptidUtils.copyToClipboard(code).then(success => {
+              if (success) {
+                const orig = btn.innerText;
+                btn.innerText = 'COPIED';
+                setTimeout(() => {
+                  btn.innerText = orig;
+                }, 2000);
+              }
+            });
+          }
+        });
+      });
+    }
+
+    function init() {
+      initTheme();
+      renderHistory();
+      initEventListeners();
+      setStatus('', 'READY');
+      
+      const mainTab = document.querySelector('.tab-btn[data-tab="main"]');
+      if (mainTab) {
+        mainTab.classList.add('border-red-600');
+        mainTab.classList.remove('border-transparent');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  })();
+</script>
+</body>
+</html>
